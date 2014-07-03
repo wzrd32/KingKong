@@ -1,0 +1,24 @@
+-module(pipo).
+-export([ping/0, pong/0, recurs/1]).
+
+ping() ->
+    Pid = spawn(fun pong/0),
+    Pid ! {ping, self()},
+    recurs(Pid).
+
+recurs(Pid) ->
+    receive
+        {pong, Pid} ->
+            io:format("Kong~n"),
+            timer:sleep(5000),
+            Pid ! {ping, self()},
+            recurs(Pid)
+    end.
+
+pong() ->
+    receive
+        {ping, Pid} ->
+            io:format("King~n"),
+            Pid ! {pong, self()},
+            pong()
+    end.
